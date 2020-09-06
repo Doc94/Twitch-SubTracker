@@ -1,17 +1,17 @@
 package me.mrdoc.twitch.subtracker;
 
-import me.mrdoc.twitch.subtracker.classes.SubInstance;
+import me.mrdoc.twitch.subtracker.classes.TwitchInstance;
 import org.apache.commons.cli.*;
 
 public class Core {
 
-    private static SubInstance subInstance;
+    private static TwitchInstance twitchInstance;
 
     public static void main(String[] args) {
         CommandLine commandLine = parseInCommandLine(args);
 
-        subInstance = new SubInstance(commandLine.getOptionValue("twitch-token"),commandLine.getOptionValue("twitch-channelId"),commandLine.getOptionValue("formId"));
-        subInstance.build();
+        twitchInstance = new TwitchInstance(commandLine.getOptionValue("twitch-token"),commandLine.getOptionValue("twitch-channelId"),commandLine.getOptionValue("subsformId"),commandLine.getOptionValue("bitsformId"));
+        twitchInstance.build();
     }
 
     /**
@@ -30,9 +30,13 @@ public class Core {
         option_twitch_channelId.setRequired(true);
         options.addOption(option_twitch_channelId);
 
-        Option option_formId = new Option("fi", "formId", true, "input google form id (the /asdadasdad/)");
-        option_formId.setRequired(true);
-        options.addOption(option_formId);
+        Option option_subs_formId = new Option("sfi", "subsformId", true, "input google form id (the /asdadasdad/) for subs");
+        option_subs_formId.setRequired(true);
+        options.addOption(option_subs_formId);
+
+        Option option_bits_formId = new Option("bfi", "bitsformId", true, "input google form id (the /asdadasdad/) for bits");
+        option_bits_formId.setRequired(true);
+        options.addOption(option_bits_formId);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();

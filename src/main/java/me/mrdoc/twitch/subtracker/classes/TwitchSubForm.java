@@ -3,7 +3,7 @@ package me.mrdoc.twitch.subtracker.classes;
 import io.github.stepio.jgforms.question.MetaData;
 
 public enum TwitchSubForm implements MetaData {
-
+    //TODO: Configurable values to form
     DATE_SUB(475033903),
     NICK_SUB_BUY(540344883),
     ID_SUB_BUY(2055918815),
