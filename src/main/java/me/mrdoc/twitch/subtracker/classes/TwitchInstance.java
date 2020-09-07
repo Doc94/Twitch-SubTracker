@@ -41,6 +41,7 @@ public class TwitchInstance {
 
         clientPubSub = TwitchPubSubBuilder.builder().withEventManager(eventManager).build();
         clientPubSub.listenForSubscriptionEvents(auth2Credential, this.twitch_channelId);
+        clientPubSub.listenForCheerEvents(auth2Credential, this.twitch_channelId);
 
         System.out.println("Register sub-event from channel " + this.twitch_channelId);
         eventManager.getEventHandler(SimpleEventHandler.class).onEvent(ChannelSubscribeEvent.class, this::onSub);
