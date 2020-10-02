@@ -13,11 +13,15 @@ import io.github.stepio.jgforms.Configuration;
 import io.github.stepio.jgforms.Submitter;
 import io.github.stepio.jgforms.answer.Builder;
 import io.github.stepio.jgforms.exception.NotSubmittedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class TwitchInstance {
+
+    public static Logger LOGGER = LoggerFactory.getLogger(TwitchInstance.class);
 
     private final String twitch_token;
     private final String twitch_channelId;
@@ -43,19 +47,19 @@ public class TwitchInstance {
         clientPubSub.listenForSubscriptionEvents(auth2Credential, this.twitch_channelId);
         clientPubSub.listenForCheerEvents(auth2Credential, this.twitch_channelId);
 
-        System.out.println("Register sub-event from channel " + this.twitch_channelId);
+        LOGGER.info("Register sub-event from channel " + this.twitch_channelId);
         eventManager.getEventHandler(SimpleEventHandler.class).onEvent(ChannelSubscribeEvent.class, this::onSub);
-        System.out.println("Register bits-event from channel " + this.twitch_channelId);
+        LOGGER.info("Register bits-event from channel " + this.twitch_channelId);
         eventManager.getEventHandler(SimpleEventHandler.class).onEvent(ChannelBitsEvent.class, this::onBits);
     }
 
     public void onSub(ChannelSubscribeEvent event) {
-        System.out.println("[INFO] Trigger sub-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext().toString());
+        LOGGER.info("Trigger sub-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext().toString());
         sendSubToForm(event.getData());
     }
 
     public void onBits(ChannelBitsEvent event) {
-        System.out.println("[INFO] Trigger bits-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext());
+        LOGGER.info("Trigger bits-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext());
         sendBitsToForm(event.getData());
     }
 
@@ -77,8 +81,7 @@ public class TwitchInstance {
             Submitter submitter = new Submitter(new Configuration());
             submitter.submitForm(url);
         } catch (MalformedURLException | NotSubmittedException e) {
-            System.out.println("[ERROR] Detected error in send bits-event to form. [" + channelBitsData.toString() + "]");
-            e.printStackTrace();
+            LOGGER.error("Detected error in send bits-event to form. [" + channelBitsData.toString() + "]",e);
         }
     }
 
@@ -112,8 +115,7 @@ public class TwitchInstance {
             Submitter submitter = new Submitter(new Configuration());
             submitter.submitForm(url);
         } catch (MalformedURLException | NotSubmittedException e) {
-            System.out.println("[ERROR] Detected error in send sub-event to form. [" + subscriptionData.toString() + "]");
-            e.printStackTrace();
+            LOGGER.error("[ERROR] Detected error in send sub-event to form. [" + subscriptionData.toString() + "]",e);
         }
     }
 
@@ -132,7 +134,7 @@ public class TwitchInstance {
         }
     }
 
-    /**
+    /*
      * ChannelSubscribeEvent(data=SubscriptionData(userName=osamu_miya, displayName=osamu_miya, channelName=jaidefinichon, userId=407388960, channelId=30610294, time=2020-09-04T22:01:21.914691038Z, subPlan=Prime, subPlanName=Sub del GOI, months=0, cumulativeMonths=1, streakMonths=null, context=sub, isGift=false, multiMonthDuration=0, subMessage=CommerceMessage(message=, emotes=null), recipientId=407388960, recipientUserName=osamu_miya, recipientDisplayName=osamu_miya))
      */
 

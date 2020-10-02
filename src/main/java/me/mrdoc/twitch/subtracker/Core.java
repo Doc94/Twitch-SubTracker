@@ -2,9 +2,12 @@ package me.mrdoc.twitch.subtracker;
 
 import me.mrdoc.twitch.subtracker.classes.TwitchInstance;
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Core {
 
+    public static Logger LOGGER = LoggerFactory.getLogger(Core.class);
     private static TwitchInstance twitchInstance;
 
     public static void main(String[] args) {
@@ -45,7 +48,7 @@ public class Core {
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
+            LOGGER.error(e.getMessage());
             formatter.printHelp("utility-name", options);
             System.exit(1);
             return null;
