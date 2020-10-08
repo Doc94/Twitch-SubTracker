@@ -9,9 +9,6 @@
     <logger name="com.github.twitch4j" level="INFO"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
         <encoder>
             <charset>UTF-8</charset>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level |%logger{36}| - %msg%n</pattern>
@@ -39,7 +36,7 @@
         </filter>
     </appender>
 
-    <root level="INFO">
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="SENTRY"/>
         <appender-ref ref="FILE"/>
