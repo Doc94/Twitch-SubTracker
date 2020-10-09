@@ -6,7 +6,7 @@
 <configuration scan="true" scanPeriod="1 seconds">
 
     <!-- Configure Twitch4J logger level -->
-    <logger name="com.github.twitch4j.pubsub.TwitchPubSub" level="INFO"/>
+    <logger name="com.github.twitch4j" level="INFO"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
