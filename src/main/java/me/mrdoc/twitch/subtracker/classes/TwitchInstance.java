@@ -40,18 +40,14 @@ public class TwitchInstance {
     public void build() {
         OAuth2Credential auth2Credential = new OAuth2Credential("twitch", this.twitch_token);
 
-        EventManager eventManager = new EventManager();
-        eventManager.registerEventHandler(new SimpleEventHandler());
-        eventManager.setDefaultEventHandler(SimpleEventHandler.class);
-
-        clientPubSub = TwitchPubSubBuilder.builder().withEventManager(eventManager).build();
+        clientPubSub = TwitchPubSubBuilder.builder().build();
         clientPubSub.listenForSubscriptionEvents(auth2Credential, this.twitch_channelId);
         clientPubSub.listenForCheerEvents(auth2Credential, this.twitch_channelId);
 
         LOGGER.info("Register sub-event from channel " + this.twitch_channelId);
-        eventManager.getEventHandler(SimpleEventHandler.class).onEvent(ChannelSubscribeEvent.class, this::onSub);
+        clientPubSub.getEventManager().onEvent(ChannelSubscribeEvent.class, this::onSub);
         LOGGER.info("Register bits-event from channel " + this.twitch_channelId);
-        eventManager.getEventHandler(SimpleEventHandler.class).onEvent(ChannelBitsEvent.class, this::onBits);
+        clientPubSub.getEventManager().onEvent(ChannelBitsEvent.class, this::onBits);
     }
 
     public void onSub(ChannelSubscribeEvent event) {
