@@ -54,12 +54,12 @@ public class TwitchInstance {
     }
 
     public void onSub(ChannelSubscribeEvent event) {
-        LOGGER.info("Trigger sub-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext().toString());
+        LOGGER.info("Trigger sub-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext().toString() + " for " + event.getData().getUserName());
         sendSubToForm(event.getData());
     }
 
     public void onBits(ChannelBitsEvent event) {
-        LOGGER.info("Trigger bits-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext());
+        LOGGER.info("Trigger bits-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext() + " for " + event.getData().getUserName());
         sendBitsToForm(event.getData());
     }
 
