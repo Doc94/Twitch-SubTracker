@@ -42,6 +42,7 @@ public class TwitchInstance {
 
         EventManager eventManager = new EventManager();
         eventManager.registerEventHandler(new SimpleEventHandler());
+        eventManager.setDefaultEventHandler(SimpleEventHandler.class);
 
         clientPubSub = TwitchPubSubBuilder.builder().withEventManager(eventManager).build();
         clientPubSub.listenForSubscriptionEvents(auth2Credential, this.twitch_channelId);
