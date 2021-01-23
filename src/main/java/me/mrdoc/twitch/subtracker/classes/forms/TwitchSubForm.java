@@ -1,4 +1,4 @@
-package me.mrdoc.twitch.subtracker.classes;
+package me.mrdoc.twitch.subtracker.classes.forms;
 
 import io.github.stepio.jgforms.question.MetaData;
 

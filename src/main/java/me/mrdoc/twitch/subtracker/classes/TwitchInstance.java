@@ -1,18 +1,23 @@
 package me.mrdoc.twitch.subtracker.classes;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
-import com.github.philippheuer.events4j.core.EventManager;
-import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.pubsub.TwitchPubSub;
 import com.github.twitch4j.pubsub.TwitchPubSubBuilder;
 import com.github.twitch4j.pubsub.domain.ChannelBitsData;
+import com.github.twitch4j.pubsub.domain.ChannelPointsRedemption;
+import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.domain.SubscriptionData;
 import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
 import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
+import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import io.github.stepio.jgforms.Configuration;
 import io.github.stepio.jgforms.Submitter;
 import io.github.stepio.jgforms.answer.Builder;
 import io.github.stepio.jgforms.exception.NotSubmittedException;
+import lombok.Setter;
+import me.mrdoc.twitch.subtracker.classes.forms.TwitchBitsForm;
+import me.mrdoc.twitch.subtracker.classes.forms.TwitchRewardsForm;
+import me.mrdoc.twitch.subtracker.classes.forms.TwitchSubForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +30,20 @@ public class TwitchInstance {
 
     private final String twitch_token;
     private final String twitch_channelId;
-    private final String subs_formId;
-    private final String bits_formId;
+    @Setter
+    private String subs_formId = "";
+    @Setter
+    private String bits_formId = "";
+    @Setter
+    private String rewards_formId = "";
+    @Setter
+    private String reward_id = "";
 
     private TwitchPubSub clientPubSub;
 
-    public TwitchInstance(String token, String channelId, String subsFormId, String bitsFormId) {
+    public TwitchInstance(String token, String channelId) {
         this.twitch_token = token;
         this.twitch_channelId = channelId;
-        this.subs_formId = subsFormId;
-        this.bits_formId = bitsFormId;
     }
 
     public void build() {
@@ -43,11 +52,16 @@ public class TwitchInstance {
         clientPubSub = TwitchPubSubBuilder.builder().build();
         clientPubSub.listenForSubscriptionEvents(auth2Credential, this.twitch_channelId);
         clientPubSub.listenForCheerEvents(auth2Credential, this.twitch_channelId);
+        clientPubSub.listenForChannelPointsRedemptionEvents(auth2Credential, this.twitch_channelId);
 
-        LOGGER.info("Register sub-event from channel " + this.twitch_channelId);
+        LOGGER.info("Register subs-event from channel " + this.twitch_channelId);
         clientPubSub.getEventManager().onEvent(ChannelSubscribeEvent.class, this::onSub);
+
         LOGGER.info("Register bits-event from channel " + this.twitch_channelId);
         clientPubSub.getEventManager().onEvent(ChannelBitsEvent.class, this::onBits);
+
+        LOGGER.info("Register rewards-event from channel " + this.twitch_channelId);
+        clientPubSub.getEventManager().onEvent(RewardRedeemedEvent.class, this::onReward);
     }
 
     public void onSub(ChannelSubscribeEvent event) {
@@ -60,7 +74,42 @@ public class TwitchInstance {
         sendBitsToForm(event.getData());
     }
 
+    public void onReward(RewardRedeemedEvent event) {
+        ChannelPointsReward channelPointsReward = event.getRedemption().getReward();
+        if(!channelPointsReward.getId().equals(reward_id)) {
+            //No hay match con el reward a trackear, no quiero basura de logs
+            return;
+        }
+        LOGGER.info("Trigger rewards-event from " + "channel" + " (" + event.getRedemption().getChannelId() + ") for " + event.getRedemption().getUser().getDisplayName());
+        sendRewardsToForm(event.getRedemption());
+    }
+
+    public void sendRewardsToForm(ChannelPointsRedemption channelPointsRedemption) {
+        if(rewards_formId == null || rewards_formId.isEmpty()) {
+            LOGGER.debug("You cant have a registry of rewards in form because you dont have set a form ID.");
+            return;
+        }
+
+        try {
+            URL url = Builder.formKey(this.rewards_formId)
+                    .put(TwitchRewardsForm.NICK_REDEEMED, channelPointsRedemption.getUser().getDisplayName())
+                    .put(TwitchRewardsForm.ID_REDEEMED, channelPointsRedemption.getUser().getId())
+                    .put(TwitchRewardsForm.ID_REWARD, channelPointsRedemption.getReward().getId())
+                    .put(TwitchRewardsForm.TITLE_REWARD, channelPointsRedemption.getReward().getTitle())
+                    .toUrl();
+            Submitter submitter = new Submitter(new Configuration());
+            submitter.submitForm(url);
+        } catch (MalformedURLException | NotSubmittedException e) {
+            LOGGER.error("Detected error in send rewards-event to form. [" + channelPointsRedemption.toString() + "]",e);
+        }
+    }
+
     public void sendBitsToForm(ChannelBitsData channelBitsData) {
+        if(bits_formId == null || bits_formId.isEmpty()) {
+            LOGGER.debug("You cant have a registry of bits in form because you dont have set a form ID.");
+            return;
+        }
+
         boolean isAnon = channelBitsData.getUserId() == null || channelBitsData.getUserId().isEmpty();
 
         String nickBuy = (isAnon) ? "Anonimo" : channelBitsData.getUserName();
@@ -83,6 +132,11 @@ public class TwitchInstance {
     }
 
     public void sendSubToForm(SubscriptionData subscriptionData) {
+        if(subs_formId == null || subs_formId.isEmpty()) {
+            LOGGER.debug("You cant have a registry of subs in form because you dont have set a form ID.");
+            return;
+        }
+
         boolean isAnon = subscriptionData.getContext().toString().contains("ANON");
         boolean isGift = subscriptionData.getIsGift();
 
@@ -97,7 +151,7 @@ public class TwitchInstance {
 
         try {
             URL url = Builder.formKey(this.subs_formId)
-                    .put(TwitchSubForm.DATE_SUB, subscriptionData.getTime())
+                    .put(TwitchSubForm.DATE_SUB, subscriptionData.getTimestamp().toString())
                     .put(TwitchSubForm.NICK_SUB_BUY, nickBuy)
                     .put(TwitchSubForm.ID_SUB_BUY,idBuy)
                     .put(TwitchSubForm.SUB_TYPE,getTypeSub(subscriptionData.getSubPlan().ordinalName()))

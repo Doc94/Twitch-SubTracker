@@ -13,7 +13,20 @@ public class Core {
     public static void main(String[] args) {
         CommandLine commandLine = parseInCommandLine(args);
 
-        twitchInstance = new TwitchInstance(commandLine.getOptionValue("twitch-token"),commandLine.getOptionValue("twitch-channelId"),commandLine.getOptionValue("subsformId"),commandLine.getOptionValue("bitsformId"));
+        twitchInstance = new TwitchInstance(commandLine.getOptionValue("twitch-token"),commandLine.getOptionValue("twitch-channelId"));
+
+        //Set de variables si aplica
+        if(commandLine.hasOption("subsformId")) {
+            twitchInstance.setSubs_formId(commandLine.getOptionValue("subsformId"));
+        }
+        if(commandLine.hasOption("bitsformId")) {
+            twitchInstance.setSubs_formId(commandLine.getOptionValue("bitsformId"));
+        }
+        if(commandLine.hasOption("rewardsformId") && commandLine.hasOption("rewardId")) {
+            twitchInstance.setSubs_formId(commandLine.getOptionValue("rewardsformId"));
+            twitchInstance.setReward_id(commandLine.getOptionValue("rewardId"));
+        }
+
         twitchInstance.build();
     }
 
@@ -34,12 +47,16 @@ public class Core {
         options.addOption(option_twitch_channelId);
 
         Option option_subs_formId = new Option("sfi", "subsformId", true, "input google form id (the /asdadasdad/) for subs");
-        option_subs_formId.setRequired(true);
         options.addOption(option_subs_formId);
 
         Option option_bits_formId = new Option("bfi", "bitsformId", true, "input google form id (the /asdadasdad/) for bits");
-        option_bits_formId.setRequired(true);
         options.addOption(option_bits_formId);
+
+        Option option_rewards_formId = new Option("rfi", "rewardsformId", true, "input google form id (the /asdadasdad/) for rewards");
+        options.addOption(option_rewards_formId);
+
+        Option option_reward_Id = new Option("ri", "rewardId", true, "input ID for the reward to track");
+        options.addOption(option_reward_Id);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
