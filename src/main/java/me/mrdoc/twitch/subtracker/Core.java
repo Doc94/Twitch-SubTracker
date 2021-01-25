@@ -20,10 +20,10 @@ public class Core {
             twitchInstance.setSubs_formId(commandLine.getOptionValue("subsformId"));
         }
         if(commandLine.hasOption("bitsformId")) {
-            twitchInstance.setSubs_formId(commandLine.getOptionValue("bitsformId"));
+            twitchInstance.setBits_formId(commandLine.getOptionValue("bitsformId"));
         }
         if(commandLine.hasOption("rewardsformId") && commandLine.hasOption("rewardId")) {
-            twitchInstance.setSubs_formId(commandLine.getOptionValue("rewardsformId"));
+            twitchInstance.setRewards_formId(commandLine.getOptionValue("rewardsformId"));
             twitchInstance.setReward_id(commandLine.getOptionValue("rewardId"));
         }
 

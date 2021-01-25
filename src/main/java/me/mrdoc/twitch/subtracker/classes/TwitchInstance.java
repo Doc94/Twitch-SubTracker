@@ -86,7 +86,7 @@ public class TwitchInstance {
 
     public void sendRewardsToForm(ChannelPointsRedemption channelPointsRedemption) {
         if(rewards_formId == null || rewards_formId.isEmpty()) {
-            LOGGER.debug("You cant have a registry of rewards in form because you dont have set a form ID.");
+            LOGGER.info("You cant have a registry of rewards in form because you dont have set a form ID.");
             return;
         }
 
