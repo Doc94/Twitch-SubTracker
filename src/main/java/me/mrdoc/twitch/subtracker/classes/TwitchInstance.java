@@ -99,7 +99,7 @@ public class TwitchInstance {
                     .toUrl();
             Submitter submitter = new Submitter(new Configuration());
             submitter.submitForm(url);
-        } catch (MalformedURLException | NotSubmittedException e) {
+        } catch (MalformedURLException | IllegalArgumentException | NotSubmittedException e) {
             LOGGER.error("Detected error in send rewards-event to form. [" + channelPointsRedemption.toString() + "]",e);
         }
     }
@@ -126,7 +126,7 @@ public class TwitchInstance {
                     .toUrl();
             Submitter submitter = new Submitter(new Configuration());
             submitter.submitForm(url);
-        } catch (MalformedURLException | NotSubmittedException e) {
+        } catch (MalformedURLException | IllegalArgumentException | NotSubmittedException e) {
             LOGGER.error("Detected error in send bits-event to form. [" + channelBitsData.toString() + "]",e);
         }
     }
@@ -137,10 +137,10 @@ public class TwitchInstance {
             return;
         }
 
-        boolean isAnon = subscriptionData.getContext().toString().contains("ANON");
+        boolean isAnon = subscriptionData.getContext().toString().toUpperCase().contains("ANON");
         boolean isGift = subscriptionData.getIsGift();
 
-        String nickBuy = (isAnon) ? "Anonimo" : subscriptionData.getUserName();
+        String nickBuy = (isAnon) ? "Anonimo" : (subscriptionData.getUserName() == null) ? "null" : subscriptionData.getUserName();
         String idBuy = (isAnon) ? "0" : subscriptionData.getUserId();
         String nickGift = (isGift) ? subscriptionData.getRecipientUserName() : "N/A";
         String idGift = (isGift) ? subscriptionData.getRecipientId() : "0";
@@ -165,7 +165,7 @@ public class TwitchInstance {
                     .toUrl();
             Submitter submitter = new Submitter(new Configuration());
             submitter.submitForm(url);
-        } catch (MalformedURLException | NotSubmittedException e) {
+        } catch (MalformedURLException | IllegalArgumentException | NotSubmittedException e) {
             LOGGER.error("[ERROR] Detected error in send sub-event to form. [" + subscriptionData.toString() + "]",e);
         }
     }
