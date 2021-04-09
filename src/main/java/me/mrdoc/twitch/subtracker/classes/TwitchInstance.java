@@ -65,7 +65,8 @@ public class TwitchInstance {
     }
 
     public void onSub(ChannelSubscribeEvent event) {
-        LOGGER.info("Trigger sub-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + event.getData().getContext().toString() + " for " + event.getData().getUserName());
+        String context = (event.getData().getContext() == null) ? "Desconocido" : event.getData().getContext().toString();
+        LOGGER.info("Trigger sub-event from " + event.getData().getChannelName() + " (" + event.getData().getChannelId() + ") with context " + context + " for " + event.getData().getUserName());
         sendSubToForm(event.getData());
     }
 
@@ -137,10 +138,12 @@ public class TwitchInstance {
             return;
         }
 
-        boolean isAnon = subscriptionData.getContext().toString().toUpperCase().contains("ANON");
+        String context = (subscriptionData.getContext() == null) ? "???" : subscriptionData.getContext().toString();
+
+        boolean isAnon = context.toUpperCase().contains("ANON");
         boolean isGift = subscriptionData.getIsGift();
 
-        String nickBuy = (isAnon) ? "Anonimo" : (subscriptionData.getUserName() == null) ? "null" : subscriptionData.getUserName();
+        String nickBuy = (isAnon) ? "Anonimo" : (subscriptionData.getUserName() == null) ? "null" : subscriptionData.getUserName(); //Maybe more fix for null?
         String idBuy = (isAnon) ? "0" : subscriptionData.getUserId();
         String nickGift = (isGift) ? subscriptionData.getRecipientUserName() : "N/A";
         String idGift = (isGift) ? subscriptionData.getRecipientId() : "0";
