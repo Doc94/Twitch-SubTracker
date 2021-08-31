@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /usr/local/
+cd /usr/local/ || exit
 
 # Output Current Java Version
 java -version
